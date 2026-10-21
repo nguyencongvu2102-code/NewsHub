@@ -18,13 +18,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Integer id;
-    @Column(name = "email",unique = true)
+    @Column(name = "email",unique = true,nullable = false)
     private String email;
-    @Column(name = "pass_word")
+    @Column(name = "pass_word",nullable = false)
     private String passWord;
     @Column(name = "dis_play_name")
     private String disPlayName;
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+    @Builder.Default
+    @Column(name = "is_deleted")
+    private Boolean isDeleted = false;
 }

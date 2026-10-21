@@ -1,21 +1,25 @@
 package com.newsHub.exception;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public enum ErrorCode {
+    EMAIL_ALREADY_EXISTS(1001,"email already exists", HttpStatus.CONFLICT),
+    USER_NOT_FOUND(1002,"User not found",HttpStatus.NOT_FOUND),
 
     ;
     int code;
     String message;
+    HttpStatusCode statusCode;
 
-    ErrorCode(int code, String message) {
+    ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
         this.message = message;
+        this.statusCode = statusCode;
     }
 }
