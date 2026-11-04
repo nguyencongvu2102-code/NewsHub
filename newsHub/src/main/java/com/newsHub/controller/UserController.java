@@ -47,8 +47,8 @@ public class UserController {
     }
 
     @PutMapping("/userId")
-    ApiResponse<UserResponse> updateUser(@RequestBody UserUpdateRequest request,@PathVariable Integer
-                                         userId){
+    ApiResponse<UserResponse> updateUser(@RequestBody UserUpdateRequest request,
+                                         @PathVariable Integer userId){
         return ApiResponse.<UserResponse>builder()
                 .code(1000)
                 .message("Update success")

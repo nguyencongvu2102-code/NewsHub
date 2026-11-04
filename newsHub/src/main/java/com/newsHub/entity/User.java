@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -22,7 +23,7 @@ public class User {
     private String email;
     @Column(name = "pass_word",nullable = false)
     private String passWord;
-    @Column(name = "dis_play_name")
+    @Column(name = "display_name")
     private String disPlayName;
     @CreationTimestamp
     @Column(name = "created_at")
@@ -30,4 +31,11 @@ public class User {
     @Builder.Default
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
+
+    @ManyToMany
+    @JoinTable(name = "users_roles",joinColumns = @JoinColumn(name = "user_id"),
+    inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles;
+
+
 }

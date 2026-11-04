@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
     EMAIL_ALREADY_EXISTS(1001,"email already exists", HttpStatus.CONFLICT),
     USER_NOT_FOUND(1002,"User not found",HttpStatus.NOT_FOUND),
+    PERMISSION_NOT_EXISTED(2001,"Permission not null",HttpStatus.NOT_FOUND),
+    ROLE_NOT_FOUND(3001,"Role not found",HttpStatus.NOT_FOUND)
 
     ;
     int code;
