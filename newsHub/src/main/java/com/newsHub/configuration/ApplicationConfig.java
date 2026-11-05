@@ -4,8 +4,6 @@ import com.newsHub.Repository.RoleRepository;
 import com.newsHub.Repository.UserRepository;
 import com.newsHub.entity.Role;
 import com.newsHub.entity.User;
-import com.newsHub.exception.AppException;
-import com.newsHub.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
