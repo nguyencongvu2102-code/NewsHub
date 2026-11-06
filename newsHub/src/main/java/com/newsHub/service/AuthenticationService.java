@@ -1,14 +1,22 @@
 package com.newsHub.service;
 
+import com.newsHub.Repository.InvalidatedTokenRepository;
 import com.newsHub.Repository.UserRepository;
 import com.newsHub.dto.request.AuthenticationRequest;
+import com.newsHub.dto.request.IntrospectRequest;
+import com.newsHub.dto.request.LogOutRequest;
+import com.newsHub.dto.request.RefreshTokenRequest;
 import com.newsHub.dto.response.AuthenticationResponse;
+import com.newsHub.dto.response.IntrospectResponse;
+import com.newsHub.entity.InvalidateToken;
 import com.newsHub.entity.User;
 import com.newsHub.exception.AppException;
 import com.newsHub.exception.ErrorCode;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,10 +25,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.StringJoiner;
 import java.util.UUID;
 
 @Slf4j
@@ -30,10 +41,19 @@ import java.util.UUID;
 public class AuthenticationService {
     PasswordEncoder passwordEncoder;
     UserRepository userRepository;
+    InvalidatedTokenRepository invalidatedTokenRepository;
 
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String signerKey;
+
+    @NonFinal
+    @Value("${jwt.valid_duration}")
+    private long VALID_DURATION;
+
+    @NonFinal
+    @Value("${jwt.refresh_duration}")
+    private long REFRESH_DURATION;
 
     public AuthenticationResponse createAuthentication(AuthenticationRequest authenticationRequest){
         User user = userRepository.findByEmail(authenticationRequest.getEmail()).orElseThrow(
@@ -62,9 +82,9 @@ public class AuthenticationService {
                 .subject(user.getEmail())
                 .issuer("vuDev")
                 .issueTime(new Date())
-                .expirationTime(new Date(Instant.now().plus(1,ChronoUnit.HOURS).toEpochMilli()))
+                .expirationTime(new Date(Instant.now().plus(VALID_DURATION,ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
-                .claim("scope","buildScope")
+                .claim("scope",buildScope(user))
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -82,4 +102,111 @@ public class AuthenticationService {
 
 
     }
+
+    private String buildScope(User user){
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if(!CollectionUtils.isEmpty(user.getRoles())){
+            user.getRoles().forEach(s -> stringJoiner.add(s.getName()));
+        }
+
+        return stringJoiner.toString();
+    }
+
+
+    private SignedJWT verifyToken(String token,boolean isRefresh)
+            throws JOSEException, ParseException {
+        JWSVerifier jwsVerifier = new MACVerifier(signerKey.getBytes());
+
+        SignedJWT signedJWT = SignedJWT.parse(token);
+
+        Date expiryTime = (isRefresh) ?
+                new Date(signedJWT.getJWTClaimsSet().getIssueTime().toInstant().plus(
+                        REFRESH_DURATION,ChronoUnit.SECONDS
+                ).toEpochMilli())
+                : signedJWT.getJWTClaimsSet().getExpirationTime();
+
+        var verified = signedJWT.verify(jwsVerifier);
+
+
+        if(!(verified && expiryTime.after(new Date()))){
+            throw new AppException(ErrorCode.AUTHENTICATED);
+        }
+
+        if(invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())){
+            throw new AppException(ErrorCode.AUTHENTICATED);
+        }
+
+        return signedJWT;
+
+    }
+
+
+    public IntrospectResponse introspectResponse(IntrospectRequest introspectRequest)
+            throws ParseException, JOSEException {
+        var token = introspectRequest.getToken();
+        boolean isValid = true;
+
+        try {
+            verifyToken(token,false);
+        }catch (Exception e){
+            isValid = false;
+        }
+
+        return IntrospectResponse.builder()
+                .valid(isValid)
+                .build();
+    }
+
+
+    public void  logOut(LogOutRequest request) throws ParseException, JOSEException {
+        try {
+            var signToken = verifyToken(request.getToken(), true);
+            String jit = signToken.getJWTClaimsSet().getJWTID();
+            Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+            InvalidateToken invalidateToken = InvalidateToken
+                    .builder()
+                    .jid(jit)
+                    .expiryTime(expiryTime)
+                    .build();
+
+            invalidatedTokenRepository.save(invalidateToken);
+
+        }catch (AppException exception){
+            log.info("Token already expired");
+        }
+
+
+    }
+
+    public AuthenticationResponse reFresh(RefreshTokenRequest request)
+            throws ParseException, JOSEException {
+        var signerToken = verifyToken(request.getToken(),true);
+
+        var jit = signerToken.getJWTClaimsSet().getJWTID();
+        var expiryTime = signerToken.getJWTClaimsSet().getExpirationTime();
+
+        InvalidateToken invalidateToken = InvalidateToken.builder()
+                .jid(jit)
+                .expiryTime(expiryTime)
+                .build();
+
+        invalidatedTokenRepository.save(invalidateToken);
+
+        var email = signerToken.getJWTClaimsSet().getSubject();
+
+        var user = userRepository.findByEmail(email).orElseThrow(
+                ()-> new AppException(ErrorCode.USER_NOT_FOUND)
+        );
+
+        var token = generateToken(user);
+        return AuthenticationResponse.builder()
+                .token(token)
+                .authenticated(true)
+                .build();
+    }
+
+
+
+
+
 }

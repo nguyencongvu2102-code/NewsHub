@@ -8,10 +8,13 @@ import com.newsHub.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -30,6 +33,11 @@ public class UserController {
 
     @GetMapping("/me")
     ApiResponse<List<UserResponse>> getAll(){
+        var authenticated = SecurityContextHolder.getContext().getAuthentication();
+        log.info("email :{}",authenticated.getName());
+        authenticated.getAuthorities().stream().forEach(grantedAuthority ->
+                log.info(grantedAuthority.getAuthority()));
+
         return ApiResponse.<List<UserResponse>>builder()
                 .code(1000)
                 .message("Get users success")
