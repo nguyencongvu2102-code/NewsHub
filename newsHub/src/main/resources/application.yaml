@@ -5,10 +5,12 @@ server:
 
 
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
   datasource:
-    url: "jdbc:mysql://localhost:3306/newsHub"
-    username: "root"
-    password: "21022005"
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -21,6 +23,6 @@ spring:
 
 
 jwt:
-  signerKey: "wVtFUY7Tdq7mz2Ejg1Zj33lvGLP4USAxXFsGq2mMVWBl3oTk5GBvw4GdBOIjEqVw"
-  valid_duration: 10
-  refresh_duration: 40
+  signerKey: ${JWT_SECRET}
+  valid_duration: 900
+  refresh_duration: 604800000

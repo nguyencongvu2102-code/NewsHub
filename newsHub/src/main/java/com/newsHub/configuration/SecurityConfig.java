@@ -1,6 +1,5 @@
 package com.newsHub.configuration;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,23 +17,18 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private static final String[] POST_PUBLIC = {
-            "/permissions"
-            ,"/roles",
-            "/auth/register","/auth/me",
+            "/auth/register",
             "/auth/login",
             "/auth/introspect",
             "/auth/logOut",
             "/auth/refresh"
     };
 
-    @Autowired
-    private CustomerConfig customerConfig;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity){
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,CustomerConfig customerConfig){
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST,POST_PUBLIC).permitAll()
-                        .requestMatchers(HttpMethod.GET,POST_PUBLIC).permitAll()
                         .anyRequest().authenticated()
         );
 

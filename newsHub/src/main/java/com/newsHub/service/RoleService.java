@@ -31,14 +31,20 @@ public class RoleService {
     public RoleResponse roleRequest(RoleRequest request){
         Role role = roleMapper.toRole(request);
 
-        Set<Permission> permissions = request.getPermissions().stream().map(permissionId
-        -> permissionRepository.findById(Integer.valueOf(permissionId)).orElseThrow(
-                ()->     new AppException(ErrorCode.PERMISSION_NOT_EXISTED)
-        )).collect(Collectors.toSet());
+        Set<Permission> permissions = request.getPermissions()
+                .stream()
+                .map(
+                        permissionName -> permissionRepository.findByName(permissionName)
+                                .orElseThrow(
+                                        ()-> new AppException(ErrorCode.PERMISSION_NOT_FOUND)
+                                )
+        ).collect(Collectors.toSet());
 
         role.setPermissions(new HashSet<>(permissions));
         role = roleRepository.save(role);
         return roleMapper.toRoleResponse(role);
 
     }
+
+
 }
