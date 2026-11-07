@@ -72,9 +72,16 @@ public class PermissionService {
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public PermissionResponse updatePermission(UpdatePermissionRequest request,Integer permissionId){
+
+
         var permission = permissionRepository.findById(permissionId).orElseThrow(
                 ()-> new AppException(ErrorCode.PERMISSION_NOT_FOUND)
         );
+
+        if(request.getName() != null && !request.getName().equals(permission.getName())
+        && permissionRepository.existsByName(request.getName())){
+            throw new AppException(ErrorCode.PERMISSION_EXISTED);
+        }
 
         permissionMapper.toUpdatePermission(permission,request);
 
