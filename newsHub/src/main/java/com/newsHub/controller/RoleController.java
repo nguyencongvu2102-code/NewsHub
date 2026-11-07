@@ -7,9 +7,9 @@ import com.newsHub.service.RoleService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
@@ -19,11 +19,29 @@ public class RoleController {
     RoleService roleService;
 
     @PostMapping
-    ApiResponse<RoleResponse> roleRequest(RoleRequest request){
+    ApiResponse<RoleResponse> roleRequest(@RequestBody RoleRequest request){
         return ApiResponse.<RoleResponse>builder()
                 .code(1000)
                 .message("Role thành công")
                 .result(roleService.roleRequest(request))
+                .build();
+    }
+
+    @GetMapping
+    ApiResponse<List<RoleResponse>> getRoles(){
+        return ApiResponse.<List<RoleResponse>>builder()
+                .code(1000)
+                .message("Lấy role thành công")
+                .result(roleService.getRoles())
+                .build();
+    }
+
+    @GetMapping("/{roleId}")
+    ApiResponse<RoleResponse> getRole(@PathVariable Integer roleId){
+        return ApiResponse.<RoleResponse>builder()
+                .code(1000)
+                .message("Lấy roleId thành công")
+                .result(roleService.getRole(roleId))
                 .build();
     }
 }

@@ -1,7 +1,6 @@
 package com.newsHub.configuration;
 
 import com.newsHub.dto.request.IntrospectRequest;
-import com.newsHub.exception.ErrorCode;
 import com.newsHub.service.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
 import org.springframework.beans.factory.annotation.Autowired;

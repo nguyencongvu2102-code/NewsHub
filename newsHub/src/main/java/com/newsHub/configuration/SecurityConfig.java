@@ -21,7 +21,7 @@ public class SecurityConfig {
             "/auth/login",
             "/auth/introspect",
             "/auth/logOut",
-            "/auth/refresh"
+            "/auth/refresh",
     };
 
 
