@@ -18,5 +18,18 @@ public class GlobalHandlerException {
                         .build());
     }
 
+    @ExceptionHandler(value = Exception.class)
+    ResponseEntity<ApiResponse> handlerException(Exception exception){
+        ErrorCode errorCode = ErrorCode.SERVER_ERROR;
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build()
+        );
+    }
+
+
+
 
 }

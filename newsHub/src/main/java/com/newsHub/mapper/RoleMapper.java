@@ -19,6 +19,7 @@ public interface RoleMapper {
 
 
     RoleResponse toRoleResponse(Role role);
+    @Mapping(target = "permissions",ignore = true)
     void toUpdate(@MappingTarget Role role, UpdateRoleRequest roleRequest);
 
     default Set<String> mapPermissions(Set<Permission> permissions) {

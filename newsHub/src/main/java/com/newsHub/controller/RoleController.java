@@ -1,6 +1,7 @@
 package com.newsHub.controller;
 
 import com.newsHub.dto.request.RoleRequest;
+import com.newsHub.dto.request.UpdateRoleRequest;
 import com.newsHub.dto.response.RoleResponse;
 import com.newsHub.exception.ApiResponse;
 import com.newsHub.service.RoleService;
@@ -43,5 +44,22 @@ public class RoleController {
                 .message("Lấy roleId thành công")
                 .result(roleService.getRole(roleId))
                 .build();
+    }
+
+    @PutMapping("/{roleId}")
+    ApiResponse<RoleResponse> update(@PathVariable Integer roleId, @RequestBody UpdateRoleRequest request){
+        return ApiResponse.<RoleResponse>builder()
+                .code(1000)
+                .message("Update role thành công")
+                .result(roleService.updateRole(request,roleId))
+                .build();
+    }
+
+    @DeleteMapping("/{roleId}")
+    ApiResponse<Void> delete(@PathVariable Integer roleId){
+        roleService.delete(roleId);
+        return ApiResponse.<Void>builder()
+                .code(1000)
+                .message("Xóa thành công").build();
     }
 }

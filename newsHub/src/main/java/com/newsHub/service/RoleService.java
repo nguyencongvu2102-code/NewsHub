@@ -76,14 +76,31 @@ public class RoleService {
                 ()-> new AppException(ErrorCode.ROLE_NOT_FOUND)
         );
 
-        if(permissionRepository.existsByName(request.getName())){
-            throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
+        if(roleRepository.existsByNameAndRoleIdNot(request.getName(),roleId)){
+            throw new AppException(ErrorCode.ROLE_EXISTS);
         }
+
+        Set<Permission> permissions = request.getPermissions().stream().map(
+                permissionName -> permissionRepository.findByName(permissionName)
+                        .orElseThrow(()-> new AppException(ErrorCode.PERMISSION_NOT_FOUND))
+        ).collect(Collectors.toSet());
+
+        role.setPermissions(permissions);
 
         roleMapper.toUpdate(role,request);
 
         return roleMapper.toRoleResponse(role);
 
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public void delete(Integer roleId){
+        var role = roleRepository.findById(roleId).orElseThrow(
+                ()-> new AppException(ErrorCode.ROLE_NOT_FOUND)
+        );
+
+        roleRepository.delete(role);
     }
 
 
