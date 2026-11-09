@@ -10,9 +10,19 @@ import org.springframework.http.HttpStatusCode;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public enum ErrorCode {
     SERVER_ERROR(9999,"Server error",HttpStatus.INTERNAL_SERVER_ERROR),
+    KEY_ERROR(999,"KEY ERROR",HttpStatus.INTERNAL_SERVER_ERROR),
+
 
     EMAIL_ALREADY_EXISTS(1001,"email already exists", HttpStatus.CONFLICT),
     USER_NOT_FOUND(1002,"User not found",HttpStatus.NOT_FOUND),
+    PASS_WORD(1003,"password not null",HttpStatus.BAD_REQUEST),
+    PASSWORD(1004,"The password must be between {min} and {max} characters long and include uppercase letters," +
+            " lowercase letters, numbers, and special characters.",HttpStatus.BAD_REQUEST),
+    EMAIL_REQUIRED(1005, "Email cannot be blank", HttpStatus.BAD_REQUEST),
+    EMAIL_INVALID(1006, "Invalid email format", HttpStatus.BAD_REQUEST),
+    DISPLAY_NAME_REQUIRED(1007, "Display name cannot be blank",HttpStatus.BAD_REQUEST),
+    DISPLAY_NAME_SIZE(1008, "Display name must contain 2 to 50 characters", HttpStatus.BAD_REQUEST),
+
 
 //    Permission
     PERMISSION_NOT_FOUND(2001,"Permission not null",HttpStatus.NOT_FOUND),

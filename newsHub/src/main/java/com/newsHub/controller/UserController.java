@@ -5,6 +5,7 @@ import com.newsHub.dto.request.UserUpdateRequest;
 import com.newsHub.dto.response.UserResponse;
 import com.newsHub.exception.ApiResponse;
 import com.newsHub.service.UserService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,7 +24,7 @@ public class UserController {
     UserService userService;
 
     @PostMapping("/register")
-    ApiResponse<UserResponse> request(@RequestBody UserRequest userRequest){
+    ApiResponse<UserResponse> request(@Valid @RequestBody UserRequest userRequest){
         return ApiResponse.<UserResponse>builder()
                 .code(1000)
                 .message("Register success")
@@ -45,7 +46,7 @@ public class UserController {
                 .build();
     }
 
-    @DeleteMapping("/userId")
+    @DeleteMapping("/{userId}")
     ApiResponse<Void> delete(@PathVariable Integer userId){
         userService.delete(userId);
         return ApiResponse.<Void>builder()
@@ -54,8 +55,8 @@ public class UserController {
                 .build();
     }
 
-    @PutMapping("/userId")
-    ApiResponse<UserResponse> updateUser(@RequestBody UserUpdateRequest request,
+    @PutMapping("/{userId}")
+    ApiResponse<UserResponse> updateUser(@Valid @RequestBody UserUpdateRequest request,
                                          @PathVariable Integer userId){
         return ApiResponse.<UserResponse>builder()
                 .code(1000)
