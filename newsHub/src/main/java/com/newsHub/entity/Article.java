@@ -27,10 +27,11 @@ public class Article {
     private String content;
     @Column(name = "thumbnail_url",length = 500)
     private String thumbnailUrl;
+
     @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "article_status",nullable = false)
-    private ArticleStatus articleStatus;
+    private ArticleStatus articleStatus = ArticleStatus.DRAFT;
 
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
