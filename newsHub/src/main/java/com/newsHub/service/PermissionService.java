@@ -61,7 +61,7 @@ public class PermissionService {
                 ()-> new AppException(ErrorCode.PERMISSION_NOT_FOUND)
         );
 
-        if(roleRepository.existsByPermissions_PermissionId(permissionId)){
+        if(roleRepository.existsByPermissions_Id(permissionId)){
             throw new AppException(ErrorCode.PERMISSION_IN_USE);
         }
 
@@ -78,9 +78,15 @@ public class PermissionService {
                 ()-> new AppException(ErrorCode.PERMISSION_NOT_FOUND)
         );
 
-        if(request.getName() != null && !request.getName().equals(permission.getName())
-        && permissionRepository.existsByName(request.getName())){
-            throw new AppException(ErrorCode.PERMISSION_EXISTED);
+        if(request.getName() != null && !request.getName().equals(permission.getName())){
+            if(permissionRepository.existsByName(request.getName())){
+                throw new AppException(ErrorCode.PERMISSION_EXISTED);
+            }
+
+            if(roleRepository.existsByPermissions_Id(permissionId)){
+                throw new AppException(ErrorCode.PERMISSION_IN_USE);
+            }
+
         }
 
         permissionMapper.toUpdatePermission(permission,request);

@@ -1,5 +1,6 @@
 package com.newsHub.controller;
 
+import com.newsHub.dto.request.UpdateRoleUserRequest;
 import com.newsHub.dto.request.UserRequest;
 import com.newsHub.dto.request.UserUpdateRequest;
 import com.newsHub.dto.response.UserResponse;
@@ -10,7 +11,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,11 +34,6 @@ public class UserController {
 
     @GetMapping("/me")
     ApiResponse<List<UserResponse>> getAll(){
-        var authenticated = SecurityContextHolder.getContext().getAuthentication();
-        log.info("email :{}",authenticated.getName());
-        authenticated.getAuthorities().stream().forEach(grantedAuthority ->
-                log.info(grantedAuthority.getAuthority()));
-
         return ApiResponse.<List<UserResponse>>builder()
                 .code(1000)
                 .message("Get users success")
@@ -46,7 +41,7 @@ public class UserController {
                 .build();
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("deleteUser/{userId}")
     ApiResponse<Void> delete(@PathVariable Integer userId){
         userService.delete(userId);
         return ApiResponse.<Void>builder()
@@ -55,7 +50,7 @@ public class UserController {
                 .build();
     }
 
-    @PutMapping("/{userId}")
+    @PutMapping("updateUser/{userId}")
     ApiResponse<UserResponse> updateUser(@Valid @RequestBody UserUpdateRequest request,
                                          @PathVariable Integer userId){
         return ApiResponse.<UserResponse>builder()
@@ -63,6 +58,47 @@ public class UserController {
                 .message("Update success")
                 .result(userService.updateUser(userId,request)).build();
     }
+
+
+    @GetMapping("/getMyInfo")
+    ApiResponse<UserResponse> getMyInfo(){
+        return ApiResponse.<UserResponse>builder()
+                .code(1000)
+                .message("Get myInfo thành công")
+                .result(userService.getMyInfo())
+                .build();
+    }
+
+    @PutMapping("/updateRole/{userId}")
+    ApiResponse<UserResponse> updateRole(@PathVariable Integer userId,
+                                         @RequestBody UpdateRoleUserRequest request){
+        return ApiResponse.<UserResponse>builder()
+                .code(1000)
+                .message("Update role thành công")
+                .result(userService.updateRole(userId,request))
+                .build();
+    }
+
+
+    @GetMapping("/isDeletedFalse")
+    ApiResponse<List<UserResponse>> getIsDeleteFalse(){
+        return ApiResponse.<List<UserResponse>>builder()
+                .code(1000)
+                .message("Get isDeleteFalse thành công")
+                .result(userService.getIsDeletedFalse())
+                .build();
+    }
+
+    @GetMapping("getUser/{userId}")
+    ApiResponse<UserResponse> getUsers(@PathVariable Integer userId){
+        return ApiResponse.<UserResponse>builder()
+                .code(1000)
+                .message("Get userId thành công")
+                .result(userService.getUser(userId))
+                .build();
+    }
+
+
 
 
 

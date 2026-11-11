@@ -1,5 +1,6 @@
 package com.newsHub.mapper;
 
+import com.newsHub.dto.request.UpdatePassword;
 import com.newsHub.dto.request.UpdateRoleUserRequest;
 import com.newsHub.dto.request.UserRequest;
 import com.newsHub.dto.request.UserUpdateRequest;

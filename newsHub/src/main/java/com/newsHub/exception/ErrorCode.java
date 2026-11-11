@@ -22,6 +22,13 @@ public enum ErrorCode {
     EMAIL_INVALID(1006, "Invalid email format", HttpStatus.BAD_REQUEST),
     DISPLAY_NAME_REQUIRED(1007, "Display name cannot be blank",HttpStatus.BAD_REQUEST),
     DISPLAY_NAME_SIZE(1008, "Display name must contain 2 to 50 characters", HttpStatus.BAD_REQUEST),
+    OLD_PASSWORD_INCORRECT(1009, "Old password is incorrect", HttpStatus.BAD_REQUEST),
+    PASSWORD_NOT_MATCH(1010, "New password and confirm password do not match", HttpStatus.BAD_REQUEST),
+    PASSWORD_SAME_AS_OLD(1011, "New password must be different from old password", HttpStatus.BAD_REQUEST),
+    OLD_PASSWORD_REQUIRED(1012, "Old password is required", HttpStatus.BAD_REQUEST),
+    NEW_PASSWORD_REQUIRED(1013, "New password is required", HttpStatus.BAD_REQUEST),
+    CONFIRM_PASSWORD_REQUIRED(1014, "Confirm password is required", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED(1015, "You do not have permission to change this password", HttpStatus.FORBIDDEN),
 
 
 //    Permission
@@ -43,7 +50,7 @@ public enum ErrorCode {
 
 
     AUTHENTICATED(4001,"UNAUTHENTICATED",HttpStatus.UNAUTHORIZED),
-
+    UNAUTHENTICATED(4002,"UNAUTHENTICATED",HttpStatus.UNAUTHORIZED),
 
 
 //    Article
