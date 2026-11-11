@@ -36,7 +36,19 @@ public enum ErrorCode {
 //    ROLE
     ROLE_NOT_FOUND(3001,"Role not found",HttpStatus.NOT_FOUND),
     ROLE_EXISTS(3002,"Role name and id already exists",HttpStatus.CONFLICT),
-    AUTHENTICATED(4001,"UNAUTHENTICATED",HttpStatus.UNAUTHORIZED)
+    ROLE_BLANK(3003,"The role field cannot be left blank",HttpStatus.BAD_REQUEST),
+    ROLE_IN_USE(3004, "Role is being used by users", HttpStatus.CONFLICT),
+    ROLE_CANNOT_DELETE(3005, "System roles cannot be deleted", HttpStatus.FORBIDDEN),
+    ROLE_CANNOT_RENAME(3006,"System roles cannot be rename",HttpStatus.FORBIDDEN),
+
+
+    AUTHENTICATED(4001,"UNAUTHENTICATED",HttpStatus.UNAUTHORIZED),
+
+
+
+//    Article
+    ARTICLE_SLUG(5001,"Article slug not found",HttpStatus.NOT_FOUND),
+    ARTICLE_NOT_FOUND(5002,"Article not found",HttpStatus.NOT_FOUND),
 
     ;
     int code;

@@ -2,6 +2,7 @@ package com.newsHub.service;
 
 import com.newsHub.Repository.PermissionRepository;
 import com.newsHub.Repository.RoleRepository;
+import com.newsHub.Repository.UserRepository;
 import com.newsHub.dto.request.RoleRequest;
 import com.newsHub.dto.request.UpdateRoleRequest;
 import com.newsHub.dto.response.RoleResponse;
@@ -29,13 +30,16 @@ public class RoleService {
     RoleRepository roleRepository;
     RoleMapper roleMapper;
     PermissionRepository permissionRepository;
+    UserRepository userRepository;
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public RoleResponse roleRequest(RoleRequest request){
-
-
         Role role = roleMapper.toRole(request);
+
+        if(roleRepository.existsByName(request.getName())){
+            throw new AppException(ErrorCode.ROLE_EXISTS);
+        }
 
         Set<Permission> permissions = request.getPermissions()
                 .stream()
@@ -53,15 +57,16 @@ public class RoleService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @Transactional(readOnly = true)
     public List<RoleResponse> getRoles(){
-        var role = roleRepository.findAll();
-
-        return role.stream().map(roleMapper::toRoleResponse).toList();
+        return roleRepository.findAllWithPermissions().stream()
+                .map(roleMapper::toRoleResponse).toList();
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @Transactional(readOnly = true)
     public RoleResponse getRole(Integer roleId){
-        var role = roleRepository.findById(roleId).orElseThrow(
+        var role = roleRepository.findByIdWithPermissions(roleId).orElseThrow(
                 ()-> new AppException(ErrorCode.ROLE_NOT_FOUND)
         );
 
@@ -76,9 +81,16 @@ public class RoleService {
                 ()-> new AppException(ErrorCode.ROLE_NOT_FOUND)
         );
 
+        if(Set.of("ADMIN", "EDITOR", "VIEWER").contains(role.getName())
+                && !role.getName().equals(request.getName())){
+            throw new AppException(ErrorCode.ROLE_CANNOT_RENAME);
+        }
+
         if(roleRepository.existsByNameAndRoleIdNot(request.getName(),roleId)){
             throw new AppException(ErrorCode.ROLE_EXISTS);
         }
+
+
 
         Set<Permission> permissions = request.getPermissions().stream().map(
                 permissionName -> permissionRepository.findByName(permissionName)
@@ -99,6 +111,15 @@ public class RoleService {
         var role = roleRepository.findById(roleId).orElseThrow(
                 ()-> new AppException(ErrorCode.ROLE_NOT_FOUND)
         );
+
+        if (Set.of("ADMIN", "EDITOR", "VIEWER")
+                .contains(role.getName())) {
+            throw new AppException(ErrorCode.ROLE_CANNOT_DELETE);
+        }
+
+        if(userRepository.existsByRolesContaining(role)){
+            throw new AppException(ErrorCode.ROLE_IN_USE);
+        }
 
         roleRepository.delete(role);
     }

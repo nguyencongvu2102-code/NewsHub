@@ -61,7 +61,7 @@ public class PermissionService {
                 ()-> new AppException(ErrorCode.PERMISSION_NOT_FOUND)
         );
 
-        if(roleRepository.existsByPermissions_Id(permissionId)){
+        if(roleRepository.existsByPermissions_PermissionId(permissionId)){
             throw new AppException(ErrorCode.PERMISSION_IN_USE);
         }
 

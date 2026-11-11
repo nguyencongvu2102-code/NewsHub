@@ -29,6 +29,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,CustomerConfig customerConfig){
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST,POST_PUBLIC).permitAll()
+                        .requestMatchers(HttpMethod.GET,"/articles/**").permitAll()
                         .anyRequest().authenticated()
         );
 

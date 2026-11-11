@@ -2,6 +2,7 @@ package com.newsHub.service;
 
 import com.newsHub.Repository.RoleRepository;
 import com.newsHub.Repository.UserRepository;
+import com.newsHub.dto.request.UpdateRoleUserRequest;
 import com.newsHub.dto.request.UserRequest;
 import com.newsHub.dto.request.UserUpdateRequest;
 import com.newsHub.dto.response.UserResponse;
@@ -37,7 +38,7 @@ public class UserService {
             throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
-        Role role = roleRepository.findByName("USER").orElseThrow(
+        Role role = roleRepository.findByName("V").orElseThrow(
                 ()-> new AppException(ErrorCode.ROLE_NOT_FOUND)
         );
 
@@ -70,6 +71,7 @@ public class UserService {
 
 
 
+    @PreAuthorize("hasAuthority('ARTICLE_UPDATE')")
     @Transactional
     public UserResponse updateUser(Integer userId, UserUpdateRequest request){
 
@@ -94,5 +96,26 @@ public class UserService {
         }
 
         return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public UserResponse updateRole(Integer userId, UpdateRoleUserRequest request){
+        User user = userRepository.findById(userId).orElseThrow(
+                ()-> new AppException(ErrorCode.USER_NOT_FOUND)
+        );
+
+        if(Boolean.TRUE.equals(user.getIsDeleted())){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        Role role = roleRepository.findByName(request.getRoleName()).orElseThrow(
+                ()-> new AppException(ErrorCode.ROLE_NOT_FOUND)
+        );
+
+        user.setRoles(new HashSet<>(Set.of(role)));
+        userMapper.toUpdateUserRole(user,request);
+
+        return userMapper.toUserResponse(user);
     }
 }
