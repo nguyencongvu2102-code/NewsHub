@@ -25,12 +25,16 @@ public interface UserRepository extends JpaRepository<User,Integer> {
 
 
     @EntityGraph(attributePaths = "roles")
-    @Query("select distinct from User u where u.isDeleted = false")
+    @Query("select distinct u from User u where u.isDeleted = false")
     List<User> findByUsers();
 
     @EntityGraph(attributePaths = "roles")
-    @Query("select u from User u where u.UserId = :UserId and u.isDeleted = false")
+    @Query("select u from User u where u.id = :userId and u.isDeleted = false")
     Optional<User> findByUserId(@Param("userId") Integer userId);
 
+
+    @EntityGraph(attributePaths = "roles")
+    @Query("Select distinct u from User u where u.isDeleted = true")
+    List<User> findDeletedUsers();
 
 }

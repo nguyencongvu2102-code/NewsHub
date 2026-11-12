@@ -1,5 +1,6 @@
 package com.newsHub.controller;
 
+import com.newsHub.dto.request.UpdatePassword;
 import com.newsHub.dto.request.UpdateRoleUserRequest;
 import com.newsHub.dto.request.UserRequest;
 import com.newsHub.dto.request.UserUpdateRequest;
@@ -97,6 +98,37 @@ public class UserController {
                 .result(userService.getUser(userId))
                 .build();
     }
+
+
+    @PatchMapping("/passWord/{userId}")
+    ApiResponse<UserResponse> updatePassword(@PathVariable Integer userId, @RequestBody UpdatePassword password){
+        return ApiResponse.<UserResponse>builder()
+                .code(1000)
+                .message("Update passWord thành công")
+                .result(userService.updatePassword(userId,password))
+                .build();
+    }
+
+
+    @PatchMapping("/restoreUser/{userId}")
+    ApiResponse<UserResponse> restoreUser(@PathVariable Integer userId){
+        return ApiResponse.<UserResponse>builder()
+                .code(1000)
+                .message("Khôi phục thành công")
+                .result(userService.restoreUser(userId))
+                .build();
+    }
+
+    @GetMapping("/getDeleteUsers")
+    ApiResponse<List<UserResponse>> getDeleteUsers(){
+        return ApiResponse.<List<UserResponse>>builder()
+                .code(1000)
+                .message("Get delete user thành công")
+                .result(userService.getDeleteUsers())
+                .build();
+    }
+
+
 
 
 

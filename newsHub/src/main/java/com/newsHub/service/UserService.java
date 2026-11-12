@@ -61,7 +61,7 @@ public class UserService {
         ).toList();
     }
 
-    @PreAuthorize("has")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
     public UserResponse getUser(Integer userId){
         User user = userRepository.findByUserId(userId).orElseThrow(
@@ -136,6 +136,8 @@ public class UserService {
     }
 
 
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
     public UserResponse getMyInfo(){
         var context = SecurityContextHolder.getContext();
         String email = context.getAuthentication().getName();
@@ -192,5 +194,27 @@ public class UserService {
         return userMapper.toUserResponse(user);
 
     }
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public UserResponse restoreUser(Integer userId){
+        User user = userRepository.findById(userId).orElseThrow(
+                ()-> new AppException(ErrorCode.USER_NOT_FOUND)
+        );
+
+        user.setIsDeleted(false);
+        return userMapper.toUserResponse(user);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional(readOnly = true)
+    public List<UserResponse> getDeleteUsers(){
+        return userRepository.findDeletedUsers().stream()
+                .map(userMapper::toUserResponse)
+                .toList();
+    }
+
+
 
 }

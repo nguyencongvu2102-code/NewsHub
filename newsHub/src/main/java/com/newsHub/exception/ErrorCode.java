@@ -28,7 +28,7 @@ public enum ErrorCode {
     OLD_PASSWORD_REQUIRED(1012, "Old password is required", HttpStatus.BAD_REQUEST),
     NEW_PASSWORD_REQUIRED(1013, "New password is required", HttpStatus.BAD_REQUEST),
     CONFIRM_PASSWORD_REQUIRED(1014, "Confirm password is required", HttpStatus.BAD_REQUEST),
-    UNAUTHORIZED(1015, "You do not have permission to change this password", HttpStatus.FORBIDDEN),
+    UNAUTHORIZED_CHANGE_PASSWORD(1015, "You do not have permission to change this password", HttpStatus.FORBIDDEN),
 
 
 //    Permission
@@ -51,11 +51,14 @@ public enum ErrorCode {
 
     AUTHENTICATED(4001,"UNAUTHENTICATED",HttpStatus.UNAUTHORIZED),
     UNAUTHENTICATED(4002,"UNAUTHENTICATED",HttpStatus.UNAUTHORIZED),
+    UNAUTHORIZED(4003,"You to not have permission",HttpStatus.FORBIDDEN),
 
 
 //    Article
     ARTICLE_SLUG(5001,"Article slug not found",HttpStatus.NOT_FOUND),
     ARTICLE_NOT_FOUND(5002,"Article not found",HttpStatus.NOT_FOUND),
+    ARTICLE_SLUG_ALREADY_EXISTS(5003,"Slug already exists",HttpStatus.CONFLICT),
+    INVALID_ARTICLE_STATUS(5004,"invalid post status",HttpStatus.NOT_FOUND),
 
     ;
     int code;

@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
+import java.time.ZoneId;
+
 
 @Service
 @RequiredArgsConstructor
@@ -30,15 +30,27 @@ public class ArticleService {
     ArticleMapper articleMapper;
     UserRepository userRepository;
 
-    @PreAuthorize("hasRole('ADMIN') and hasAuthority('ARTICLE_CREATE')")
+    @PreAuthorize("hasAuthority('ARTICLE_CREATE')")
     @Transactional
     public ArticleResponse createRequest(ArticleRequest request){
+        if(articleRepository.existsBySlug(request.getSlug())){
+            throw new AppException(ErrorCode.ARTICLE_SLUG_ALREADY_EXISTS);
+        }
+
+
+
         Article article = articleMapper.toArticle(request);
+
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(
                 ()-> new AppException(ErrorCode.USER_NOT_FOUND)
         );
+
+        if(Boolean.TRUE.equals(user.getIsDeleted())){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
 
         article.setUser(user);
         article.setArticleStatus(ArticleStatus.DRAFT);
@@ -48,40 +60,60 @@ public class ArticleService {
     }
 
 
+
+
     @Transactional(readOnly = true)
     public ArticleResponse getSlugs(String slug){
         Article article = articleRepository.findBySlug(slug).orElseThrow(
                 ()-> new AppException(ErrorCode.ARTICLE_SLUG)
         );
 
+        if(article.getArticleStatus() != ArticleStatus.PUBLISHED){
+            throw new AppException(ErrorCode.ARTICLE_NOT_FOUND);
+        }
+
         return articleMapper.toArticleResponse(article);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ARTICLE_PUBLISH')")
     @Transactional
     public ArticleResponse updatePUBLISHED(Integer articleId){
+
         Article article = articleRepository.findById(articleId).orElseThrow(
                 ()-> new AppException(ErrorCode.ARTICLE_NOT_FOUND)
         );
 
-
+        if(article.getArticleStatus() != ArticleStatus.PENDING){
+            throw new AppException(ErrorCode.INVALID_ARTICLE_STATUS);
+        }
 
         article.setArticleStatus(ArticleStatus.PUBLISHED);
-        article.setPublishedAt(LocalDateTime.now());
+        article.setPublishedAt(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")));
 
-        article = articleRepository.save(article);
         return articleMapper.toArticleResponse(article);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ARTICLE_SUBMIT')")
     @Transactional
     public ArticleResponse updatePENDING(Integer articleId){
         Article article = articleRepository.findById(articleId).orElseThrow(
                 ()-> new AppException(ErrorCode.ARTICLE_NOT_FOUND)
         );
 
-        article.setPublishedAt(LocalDateTime.now());
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+
+        if(!article.getUser().getEmail().equals(email)){
+            throw new  AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        if(article.getArticleStatus() != ArticleStatus.DRAFT){
+            throw new AppException(ErrorCode.INVALID_ARTICLE_STATUS);
+        }
+
+
         article.setArticleStatus(ArticleStatus.PENDING);
+        article.setPublishedAt(null);
 
         return articleMapper.toArticleResponse(article);
     }
@@ -94,7 +126,12 @@ public class ArticleService {
         Article article = articleRepository.findById(articleId).orElseThrow(
                 ()-> new AppException(ErrorCode.ARTICLE_NOT_FOUND)
         );
-        article.setPublishedAt(LocalDateTime.now());
+
+        if(article.getArticleStatus() != ArticleStatus.PENDING){
+            throw new AppException(ErrorCode.INVALID_ARTICLE_STATUS);
+        }
+
+        article.setPublishedAt(null);
         article.setArticleStatus(ArticleStatus.REJECTED);
         return articleMapper.toArticleResponse(article);
     }

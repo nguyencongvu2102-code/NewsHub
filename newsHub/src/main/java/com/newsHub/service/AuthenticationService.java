@@ -38,6 +38,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
+
 public class AuthenticationService {
     PasswordEncoder passwordEncoder;
     UserRepository userRepository;
@@ -49,11 +50,14 @@ public class AuthenticationService {
 
     @NonFinal
     @Value("${jwt.valid_duration}")
-    private long VALID_DURATION;
+    private long validDuration;
 
     @NonFinal
     @Value("${jwt.refresh_duration}")
-    private long REFRESH_DURATION;
+    private long refreshDuration;
+
+
+
 
     public AuthenticationResponse createAuthentication(AuthenticationRequest authenticationRequest){
         User user = userRepository.findByEmail(authenticationRequest.getEmail()).orElseThrow(
@@ -82,7 +86,7 @@ public class AuthenticationService {
                 .subject(user.getEmail())
                 .issuer("vuDev")
                 .issueTime(new Date())
-                .expirationTime(new Date(Instant.now().plus(VALID_DURATION,ChronoUnit.SECONDS).toEpochMilli()))
+                .expirationTime(new Date(Instant.now().plus(validDuration,ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope",buildScope(user))
                 .build();
@@ -130,7 +134,7 @@ public class AuthenticationService {
 
         Date expiryTime = (isRefresh) ?
                 new Date(signedJWT.getJWTClaimsSet().getIssueTime().toInstant().plus(
-                        REFRESH_DURATION,ChronoUnit.SECONDS
+                       refreshDuration,ChronoUnit.SECONDS
                 ).toEpochMilli())
                 : signedJWT.getJWTClaimsSet().getExpirationTime();
 
@@ -157,7 +161,7 @@ public class AuthenticationService {
 
         try {
             verifyToken(token,false);
-        }catch (Exception e){
+        }catch (Exception _){
             isValid = false;
         }
 
@@ -165,6 +169,7 @@ public class AuthenticationService {
                 .valid(isValid)
                 .build();
     }
+
 
 
     public void  logOut(LogOutRequest request) throws ParseException, JOSEException {
@@ -180,7 +185,7 @@ public class AuthenticationService {
 
             invalidatedTokenRepository.save(invalidateToken);
 
-        }catch (AppException exception){
+        }catch (AppException _){
             log.info("Token already expired");
         }
 

@@ -37,7 +37,9 @@ public class SecurityConfig {
         httpSecurity.oauth2ResourceServer(oauth ->
                 oauth.jwt(jwtConfigurer -> jwtConfigurer.decoder(customerConfig)
                         .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                ));
+                )
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+        );
 
         return httpSecurity.build();
     }

@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface ArticleRepository extends JpaRepository<Article,Integer> {
+    boolean existsBySlug(String slug);
     Optional<Article> findBySlug(String slug);
 }
