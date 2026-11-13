@@ -59,6 +59,7 @@ public enum ErrorCode {
     ARTICLE_NOT_FOUND(5002,"Article not found",HttpStatus.NOT_FOUND),
     ARTICLE_SLUG_ALREADY_EXISTS(5003,"Slug already exists",HttpStatus.CONFLICT),
     INVALID_ARTICLE_STATUS(5004,"invalid post status",HttpStatus.NOT_FOUND),
+    ARTICLE_ACCESS_DENIED(5005,"You do not have permission to update this article",HttpStatus.FORBIDDEN),
 
     ;
     int code;

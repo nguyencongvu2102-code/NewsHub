@@ -101,7 +101,7 @@ public class UserController {
 
 
     @PatchMapping("/passWord/{userId}")
-    ApiResponse<UserResponse> updatePassword(@PathVariable Integer userId, @RequestBody UpdatePassword password){
+    ApiResponse<UserResponse> updatePassword(@Valid @PathVariable Integer userId, @RequestBody UpdatePassword password){
         return ApiResponse.<UserResponse>builder()
                 .code(1000)
                 .message("Update passWord thành công")

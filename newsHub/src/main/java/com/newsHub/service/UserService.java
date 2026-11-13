@@ -164,12 +164,16 @@ public class UserService {
     }
 
 
-    @PreAuthorize("hasRole('ADMIN','VIEWER','EDITOR')")
+    @PreAuthorize("isAuthenticated()")
     @Transactional
     public UserResponse updatePassword(Integer userId, UpdatePassword password){
-        User user = userRepository.findByUserId(userId).orElseThrow(
+        User user = userRepository.findById(userId).orElseThrow(
                 ()-> new AppException(ErrorCode.USER_NOT_FOUND)
         );
+
+        if(Boolean.TRUE.equals(user.getIsDeleted())){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -214,6 +218,8 @@ public class UserService {
                 .map(userMapper::toUserResponse)
                 .toList();
     }
+
+
 
 
 
