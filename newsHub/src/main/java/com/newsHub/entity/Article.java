@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -44,6 +46,12 @@ public class Article {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id",nullable = false)
     private User user;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "article_tags",joinColumns = @JoinColumn(name = "article_id"),
+    inverseJoinColumns = @JoinColumn(name = "tag_id") )
+    private Set<Tag> tags = new HashSet<>();
+
 
 
     @PrePersist
