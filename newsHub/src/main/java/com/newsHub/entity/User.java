@@ -5,6 +5,8 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -39,7 +41,16 @@ public class User {
     private Set<Role> roles;
 
     @OneToMany(mappedBy = "user")
-    private List<Article> articles;
+    @Builder.Default
+    private List<Article> articles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    @Builder.Default
+    private Set<Comment> comments = new HashSet<>();
+
+    @OneToMany(mappedBy = "user")
+    @Builder.Default
+    private Set<Bookmark> bookmarks = new HashSet<>();
 
 
 }

@@ -26,6 +26,9 @@ public class Article {
     @Column(nullable = false, unique = true, length = 255)
     private String slug;
     private String summary;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String content;
     @Column(name = "thumbnail_url",length = 500)
     private String thumbnailUrl;
@@ -50,13 +53,29 @@ public class Article {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "article_tags",joinColumns = @JoinColumn(name = "article_id"),
     inverseJoinColumns = @JoinColumn(name = "tag_id") )
+    @Builder.Default
     private Set<Tag> tags = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id",nullable = false)
+    private Category category;
+
+    @OneToMany(mappedBy = "article")
+    @Builder.Default
+    private Set<Bookmark> bookmarks = new HashSet<>();
+
+    @OneToMany(mappedBy = "article")
+    @Builder.Default
+    private Set<Comment> comments = new HashSet<>();
+
 
 
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
+        createdAt = now;
+        updatedAt = now;
     }
 
     @PreUpdate

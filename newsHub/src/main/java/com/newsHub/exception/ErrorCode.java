@@ -61,6 +61,11 @@ public enum ErrorCode {
     INVALID_ARTICLE_STATUS(5004,"invalid post status",HttpStatus.NOT_FOUND),
     ARTICLE_ACCESS_DENIED(5005,"You do not have permission to update this article",HttpStatus.FORBIDDEN),
 
+
+
+//    Tag
+    TAG_NOT_FOUND(6001,"Tag not null ",HttpStatus.NOT_FOUND),
+
     ;
     int code;
     String message;

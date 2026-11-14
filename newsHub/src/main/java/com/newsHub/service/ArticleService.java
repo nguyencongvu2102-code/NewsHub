@@ -1,11 +1,13 @@
 package com.newsHub.service;
 
 import com.newsHub.Repository.ArticleRepository;
+import com.newsHub.Repository.TagRepository;
 import com.newsHub.Repository.UserRepository;
 import com.newsHub.dto.request.ArticleRequest;
 import com.newsHub.dto.request.UpdateArticle;
 import com.newsHub.dto.response.ArticleResponse;
 import com.newsHub.entity.Article;
+import com.newsHub.entity.Tag;
 import com.newsHub.entity.User;
 import com.newsHub.exception.AppException;
 import com.newsHub.exception.ErrorCode;
@@ -23,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Service
@@ -33,6 +37,7 @@ public class ArticleService {
     ArticleRepository articleRepository;
     ArticleMapper articleMapper;
     UserRepository userRepository;
+    TagRepository tagRepository;
 
     @PreAuthorize("hasAuthority('ARTICLE_CREATE')")
     @Transactional
@@ -41,10 +46,17 @@ public class ArticleService {
             throw new AppException(ErrorCode.ARTICLE_SLUG_ALREADY_EXISTS);
         }
 
+       Set<Integer> tagIds = request.getTags();
 
+        Set<Tag> tags = new HashSet<>(
+                tagRepository.findAllById(tagIds)
+        );
+
+        if(tags.size() != tagIds.size()){
+            throw new AppException(ErrorCode.TAG_NOT_FOUND);
+        }
 
         Article article = articleMapper.toArticle(request);
-
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(
@@ -57,6 +69,7 @@ public class ArticleService {
 
 
         article.setUser(user);
+        article.setTags(tags);
         article.setArticleStatus(ArticleStatus.DRAFT);
         article.setPublishedAt(null);
 
