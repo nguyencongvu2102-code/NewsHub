@@ -65,6 +65,8 @@ public enum ErrorCode {
 
 //    Tag
     TAG_NOT_FOUND(6001,"Tag not null ",HttpStatus.NOT_FOUND),
+    TAG_ALREADY_EXISTS(6002,"Tag already exists",HttpStatus.CONFLICT),
+    TAG_IN_USE(6003,"Tag in use",HttpStatus.IM_USED),
 
     ;
     int code;
