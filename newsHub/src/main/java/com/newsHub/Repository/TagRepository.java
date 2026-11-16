@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 
 @Repository
 public interface TagRepository extends JpaRepository<Tag,Integer> {
@@ -20,5 +22,8 @@ public interface TagRepository extends JpaRepository<Tag,Integer> {
             where t.id = :tagId
             """)
     boolean existsByArticlesContaining(@Param("tagId") Integer tagId);
+    Optional<Tag> findBySlug(String slug);
+    boolean existsBySlugAndIdNot(String slug,Integer tagId);
+    boolean existsByNameAndIdNot(String name,Integer tagId);
 
 }

@@ -2,6 +2,7 @@ package com.newsHub.service;
 
 import com.newsHub.Repository.TagRepository;
 import com.newsHub.dto.request.TagRequest;
+import com.newsHub.dto.request.UpdateTag;
 import com.newsHub.dto.response.TagResponse;
 import com.newsHub.entity.Tag;
 import com.newsHub.exception.AppException;
@@ -70,5 +71,34 @@ public class TagService {
 
         tagRepository.delete(tag);
     }
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public TagResponse updateTag(UpdateTag updateTag,Integer tagId){
+        Tag tag = tagRepository.findById(tagId).orElseThrow(
+                ()-> new AppException(ErrorCode.TAG_NOT_FOUND)
+        );
+        if(tagRepository.existsBySlugAndIdNot(updateTag.getSlug(),tagId)){
+            throw new AppException(ErrorCode.TAG_ALREADY_EXISTS);
+        }
+        if(tagRepository.existsByNameAndIdNot(updateTag.getName(),tagId)){
+            throw new AppException(ErrorCode.TAG_ALREADY_EXISTS);
+        }
+        tagMapper.toTag(tag,updateTag);
+        return tagMapper.toTagResponse(tag);
+    }
+
+
+    @Transactional(readOnly = true)
+    public TagResponse getTagSlug(String slug){
+        Tag tag = tagRepository.findBySlug(slug).orElseThrow(
+                ()-> new AppException(ErrorCode.TAG_NOT_FOUND)
+        );
+
+        return tagMapper.toTagResponse(tag);
+    }
+
+
 
 }

@@ -1,6 +1,7 @@
 package com.newsHub.controller;
 
 import com.newsHub.dto.request.TagRequest;
+import com.newsHub.dto.request.UpdateTag;
 import com.newsHub.dto.response.TagResponse;
 import com.newsHub.exception.ApiResponse;
 import com.newsHub.service.TagService;
@@ -51,6 +52,24 @@ public class TagController {
         return ApiResponse.<Void>builder()
                 .code(1000)
                 .message("Xóa thành công").build();
+    }
+
+    @GetMapping("/slug/{slug}")
+    ApiResponse<TagResponse> getTagSlug(@PathVariable String slug){
+        return ApiResponse.<TagResponse>builder()
+                .code(1000)
+                .message("Slug thành công")
+                .result(tagService.getTagSlug(slug))
+                .build();
+    }
+
+    @PatchMapping("/{tagId}")
+    ApiResponse<TagResponse> updateTag(@RequestBody UpdateTag tag,@PathVariable Integer tagId){
+        return ApiResponse.<TagResponse>builder()
+                .code(1000)
+                .message("Update tag thành công")
+                .result(tagService.updateTag(tag,tagId))
+                .build();
     }
 
 
