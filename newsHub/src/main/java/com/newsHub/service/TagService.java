@@ -64,7 +64,7 @@ public class TagService {
                 ()-> new AppException(ErrorCode.TAG_NOT_FOUND)
         );
 
-        if(tagRepository.existsByArticlesContaining(tag)){
+        if(tagRepository.existsByArticlesContaining(tagId)){
             throw new AppException(ErrorCode.TAG_IN_USE);
         }
 

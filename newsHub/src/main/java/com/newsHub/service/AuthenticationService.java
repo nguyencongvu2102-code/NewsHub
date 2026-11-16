@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
@@ -63,6 +64,10 @@ public class AuthenticationService {
         User user = userRepository.findByEmail(authenticationRequest.getEmail()).orElseThrow(
                 ()-> new AppException(ErrorCode.USER_NOT_FOUND)
         );
+
+        if(Boolean.TRUE.equals(user.getIsDeleted())){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
 
         var authenticated = passwordEncoder.matches(authenticationRequest.getPassWord(), user.getPassWord());
         if(!authenticated){
@@ -176,7 +181,7 @@ public class AuthenticationService {
         try {
             var signToken = verifyToken(request.getToken(), true);
             String jit = signToken.getJWTClaimsSet().getJWTID();
-            Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+            Date expiryTime = getRefreshExpiryTime(signToken);
             InvalidateToken invalidateToken = InvalidateToken
                     .builder()
                     .jid(jit)
@@ -192,12 +197,26 @@ public class AuthenticationService {
 
     }
 
+    @Transactional
     public AuthenticationResponse reFresh(RefreshTokenRequest request)
             throws ParseException, JOSEException {
         var signerToken = verifyToken(request.getToken(),true);
 
         var jit = signerToken.getJWTClaimsSet().getJWTID();
-        var expiryTime = signerToken.getJWTClaimsSet().getExpirationTime();
+
+
+        var email = signerToken.getJWTClaimsSet().getSubject();
+
+        var user = userRepository.findByEmail(email).orElseThrow(
+                ()-> new AppException(ErrorCode.USER_NOT_FOUND)
+        );
+
+        if(Boolean.TRUE.equals(user.getIsDeleted())){
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        var expiryTime = getRefreshExpiryTime(signerToken);
+
 
         InvalidateToken invalidateToken = InvalidateToken.builder()
                 .jid(jit)
@@ -206,17 +225,23 @@ public class AuthenticationService {
 
         invalidatedTokenRepository.save(invalidateToken);
 
-        var email = signerToken.getJWTClaimsSet().getSubject();
 
-        var user = userRepository.findByEmail(email).orElseThrow(
-                ()-> new AppException(ErrorCode.USER_NOT_FOUND)
-        );
 
         var token = generateToken(user);
+
         return AuthenticationResponse.builder()
                 .token(token)
                 .authenticated(true)
                 .build();
+    }
+
+
+    private Date getRefreshExpiryTime(SignedJWT signedJWT) throws ParseException {
+        return Date.from(
+                signedJWT.getJWTClaimsSet()
+                .getIssueTime()
+                        .toInstant()
+                        .plus(refreshDuration,ChronoUnit.SECONDS));
     }
 
 
