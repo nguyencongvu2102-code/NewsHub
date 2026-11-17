@@ -68,6 +68,13 @@ public enum ErrorCode {
     TAG_ALREADY_EXISTS(6002,"Tag already exists",HttpStatus.CONFLICT),
     TAG_IN_USE(6003,"Tag in use",HttpStatus.IM_USED),
 
+
+
+//    Category
+    CATEGORY_NOT_FOUND(7001,"Category not found",HttpStatus.NOT_FOUND),
+    CATEGORY_ALREADY_EXISTS(7002,"Category already exists",HttpStatus.CONFLICT),
+    CATEGORY_IN_USE(7003,"Category in use",HttpStatus.IM_USED),
+
     ;
     int code;
     String message;

@@ -32,4 +32,6 @@ public interface ArticleRepository extends JpaRepository<Article,Integer> {
     @EntityGraph(attributePaths = "user")
     @Query("select a from Article a where a.id = :articleId")
     Optional<Article> findByArticleById(@Param("articleId") Integer articleId);
+
+    boolean existsByCategory_Id(Integer categoryId);
 }
