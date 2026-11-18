@@ -15,7 +15,7 @@ public interface CategoryRepository extends JpaRepository<Category,Integer> {
     boolean existsBySlugAndIdNot(String slug,Integer categoryId);
     boolean existsByName(String name);
     boolean existsByNameAndIdNot(String name,Integer categoryId);
-    Page<Category> findByAll(Pageable pageable);
+    Page<Category> findAll(Pageable pageable);
 
 
 }

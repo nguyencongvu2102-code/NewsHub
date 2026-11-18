@@ -30,6 +30,7 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST,POST_PUBLIC).permitAll()
                         .requestMatchers(HttpMethod.GET,"/articles/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/categories/**").permitAll()
                         .anyRequest().authenticated()
         );
 

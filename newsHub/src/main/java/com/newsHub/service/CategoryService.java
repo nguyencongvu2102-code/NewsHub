@@ -14,10 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +26,7 @@ public class CategoryService {
     CategoryMapper categoryMapper;
     ArticleRepository articleRepository;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public CategoryResponse createRequest(CategoryRequest categoryRequest){
         if(categoryRepository.existsBySlug(categoryRequest.getSlug())){
@@ -42,9 +42,10 @@ public class CategoryService {
         return categoryMapper.toCategoryResponse(category);
     }
 
+
     @Transactional(readOnly = true)
     public Page<CategoryResponse> getCategories(Pageable pageable){
-        return categoryRepository.findByAll(pageable)
+        return categoryRepository.findAll(pageable)
                 .map(categoryMapper::toCategoryResponse);
     }
 
@@ -57,6 +58,7 @@ public class CategoryService {
         return categoryMapper.toCategoryResponse(category);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public void deleteCategory(Integer categoryId){
 
@@ -70,6 +72,7 @@ public class CategoryService {
         categoryRepository.delete(category);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public CategoryResponse updateCategory(UpdateCategory updateCategory,Integer categoryId){
         if(updateCategory.getSlug() != null &&
