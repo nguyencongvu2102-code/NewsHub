@@ -3,7 +3,6 @@ package com.newsHub.dto.request;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Set;
 
 @Getter
 @Setter
@@ -13,5 +12,6 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookMarkRequest {
     private Integer articleId;
+    private Integer userId;
 
 }

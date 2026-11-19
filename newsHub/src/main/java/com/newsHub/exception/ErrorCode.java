@@ -75,6 +75,11 @@ public enum ErrorCode {
     CATEGORY_ALREADY_EXISTS(7002,"Category already exists",HttpStatus.CONFLICT),
     CATEGORY_IN_USE(7003,"Category in use",HttpStatus.IM_USED),
 
+
+//    Bookmark
+    BOOKMARK_ALREADY_EXISTS(8001,"Bookmark already exists",HttpStatus.CONFLICT),
+    BOOKMARK_NOT_FOUND(8002,"Bookmark not found",HttpStatus.NOT_FOUND),
+
     ;
     int code;
     String message;
