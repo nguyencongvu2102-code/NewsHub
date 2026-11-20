@@ -68,7 +68,7 @@ public class BookmarkService {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public Page<BookMarkResponse> getBookMarks(Integer bookMarkId, Pageable pageable){
+    public Page<BookMarkResponse> getBookMarks(Pageable pageable){
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(
                 ()-> new AppException(ErrorCode.USER_NOT_FOUND)
@@ -78,11 +78,12 @@ public class BookmarkService {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
 
-        Page<Bookmark> bookmarks = bookmarkRepository.findAllBookMark(user.getId(),pageable);
+        Page<Bookmark> bookmarks = bookmarkRepository.findAllByUser_Id(user.getId(),pageable);
         return bookmarks.map(bookMarkMapper::toBookMarkResponse);
     }
 
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public BookMarkResponse getBookMark(Integer bookMarkId){
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -102,4 +103,27 @@ public class BookmarkService {
 
         return bookMarkMapper.toBookMarkResponse(bookmark);
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @Transactional
+    public void deleteBookMark(Integer bookMarkId){
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(
+                ()-> new AppException(ErrorCode.USER_NOT_FOUND)
+        );
+
+        if(Boolean.TRUE.equals(user.getIsDeleted())){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        Bookmark bookmark = bookmarkRepository.findByIdAndUser_Id(bookMarkId,user.getId()).orElseThrow(
+                ()-> new AppException(ErrorCode.BOOKMARK_NOT_FOUND)
+        );
+
+        bookmarkRepository.delete(bookmark);
+
+    }
+
+
 }

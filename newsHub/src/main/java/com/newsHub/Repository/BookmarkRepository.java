@@ -14,7 +14,10 @@ import java.util.Optional;
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark,Integer> {
     boolean existsByUserAndArticle(User user, Article article);
-    Page<Bookmark> findAllBookMark(Integer userId,Pageable pageable);
+    Page<Bookmark> findAllByUser_Id(
+            Integer userId,
+            Pageable pageable
+    );
     @EntityGraph(attributePaths = "article")
     Optional<Bookmark> findByIdAndUser_Id(
             Integer bookMarkId,
